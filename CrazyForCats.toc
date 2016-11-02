@@ -1,0 +1,7 @@
+## Interface: 70000
+## Title: CrazyForCats
+## Version: 1.1
+## Author: phistoh
+## Notes: Provides a command to summon a random cat.
+CrazyForCats_Tables.lua
+CrazyForCats.lua
