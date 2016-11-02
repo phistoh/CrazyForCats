@@ -13,7 +13,7 @@ SLASH_CFC2 = "/cfc"
 
 SlashCmdList["CFC"] = function(args)
 	-- test if the user is in combat and don't do anything if so
-	if InCombatLockdown() == 1 then
+	if UnitAffectingCombat("player") then
 		print("Cannot summon a pet in combat.")
 		return
 	end
