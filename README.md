@@ -15,4 +15,4 @@ In *CrazyForCats_Tables.lua*, define a table `name = {"Default name of a pet", "
 - **1.0**: Initial release
 
 ## To-Do
-- [ ] Don't use a table of tables, use the "inner" tables directly instead
+- [ ] ~~Don't use a table of tables, use the "inner" tables directly instead~~
