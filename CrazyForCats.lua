@@ -2,6 +2,7 @@
 -- Changes
 ----------------------------------
 
+-- 1.2: Using individual tables of pets instead of a table of tables of pets
 -- 1.1b: Fixed combat check
 -- 1.1: Added combat check
 -- 1.0: Initial release
@@ -20,14 +21,14 @@ SlashCmdList["CFC"] = function(args)
 	end
 	
 	-- gets the default table in the separate lua file
-	local table_of_pets = pet_tables[cats]
+	local table_of_pets = _G[cats]
 	
 	-- 
 	-- local args=SecureCmdOptionParse(args);
 	
 	-- if a argument was given get the corresponding table
 	if args ~= nil then
-		table_of_pets = pet_tables[args:lower()]
+		table_of_pets = _G[args:lower()]
 		-- if there is no such table return an error
 		if table_of_pets == nil then
 			print("Table " .. args .. " is nil. :(")
