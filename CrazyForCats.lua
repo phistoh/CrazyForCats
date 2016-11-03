@@ -2,6 +2,7 @@
 -- Changes
 ----------------------------------
 
+-- 1.1b: Fixed combat check
 -- 1.1: Added combat check
 -- 1.0: Initial release
 
