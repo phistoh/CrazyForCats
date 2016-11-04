@@ -2,7 +2,22 @@
 WoW addon which provides a slash command to summon a random pet out of a predefined table
 
 ## Usage
-In *CrazyForCats_Tables.lua*, define a table `name = {"Default name of a pet", "Default name of another pet", ...}`. Summon a random pet from this list ingame with the command `/cfc name`.
+In *CrazyForCats_Tables.lua*, define a table inside the `pet_tables` table:
+```lua
+pet_tables = {
+  cats = {
+    "Feline Familiar",
+    ...
+  },
+  ...
+  name = {
+    "Default name of a pet",
+    "Default name of another pet",
+    ...
+  }
+}
+```
+Summon a random pet from this list ingame with the command `/cfc name`.
 
 ## File Description
 - **CrazyForCats.lua** contains the main code
