@@ -1,7 +1,23 @@
 local addonName, phis = ...
 
-local phisFrame = CreateFrame('Frame', 'phisCheckFrame', UIParent)
+local phisFrame = CreateFrame('Frame', addonName..'CheckFrame', UIParent)
 phisFrame:RegisterEvent('ADDON_LOADED')
+
+-- to control automatic summoning of pets
+phisFrame:RegisterEvent('PLAYER_STARTED_MOVING')
+phisFrame:RegisterEvent('UNIT_EXITED_VEHICLE')
+phisFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
+phisFrame:RegisterEvent('ZONE_CHANGED')
+phisFrame:RegisterEvent('ZONE_CHANGED_INDOORS')
+phisFrame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
+phisFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
+phisFrame:RegisterEvent('PLAYER_UPDATE_RESTING')
+phisFrame:RegisterEvent('PLAYER_ALIVE')
+phisFrame:RegisterEvent('PLAYER_UNGHOST')
+
+-- controls the icons to indicate personal favorites
+local personalFavoriteIcons = nil
+
 
 -- globals for keybindings
 BINDING_HEADER_CRAZYFORCATS = addonName
@@ -33,12 +49,12 @@ local function createInset(name, parent, w, h, anchor, ofsX, ofsY, label, conten
 	newInset:SetSize(w,h)
 	newInset:SetPoint(anchor, ofsX, ofsY)
 	
-	newInset.content = newInset:CreateFontString(name..'ContentFontString', 'ARTWORK', 'GameFontHighlightSmall')
+	newInset.content = newInset:CreateFontString(addonName..name..'ContentFontString', 'ARTWORK', 'GameFontHighlightSmall')
 	newInset.content:SetPoint('RIGHT', -10, 0)
 	newInset.content:SetJustifyH('RIGHT')
 	newInset.content:SetText(content)
 	
-	newInset.label = newInset:CreateFontString(name..'LabelFontString', 'ARTWORK', 'GameFontNormalSmall')
+	newInset.label = newInset:CreateFontString(addonName..name..'LabelFontString', 'ARTWORK', 'GameFontNormalSmall')
 	newInset.label:SetPoint('LEFT', 10, 0)
 	newInset.label:SetPoint('RIGHT', newInset.content, 'LEFT', -3, 0)
 	newInset.label:SetJustifyH('LEFT')
@@ -47,12 +63,18 @@ local function createInset(name, parent, w, h, anchor, ofsX, ofsY, label, conten
 	return newInset
 end
 
-local function createCheckbox(name, parent, anchor, relativeFrame, relativePoint, ofsX, ofsY, tooltip, bgPath)
-	local newCheckbox = CreateFrame('CheckButton', name, parent, 'UICheckButtonTemplate')
+local function createCheckbox(name, parent, anchor, relativeFrame, relativePoint, ofsX, ofsY, tooltip, bgPath, height, width, label)
+	local newCheckbox = CreateFrame('CheckButton', addonName..name, parent, 'InterfaceOptionsCheckButtonTemplate')
 	newCheckbox:SetPoint(anchor, relativeFrame, relativePoint, ofsX, ofsY)
 	
-	newCheckbox:SetHeight(38)
-	newCheckbox:SetWidth(38)
+	newCheckbox:SetHeight(height)
+	newCheckbox:SetWidth(width)
+	
+	if label ~= nil then
+		newCheckbox.Text:SetFontObject("GameFontNormalSmall")
+		newCheckbox.Text:SetPoint("LEFT", newCheckbox, "RIGHT", 0, 1)
+		newCheckbox.Text:SetText(label)
+	end
 	
 	newCheckbox:SetScript('OnEnter', function()
 		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
@@ -68,15 +90,51 @@ local function createCheckbox(name, parent, anchor, relativeFrame, relativePoint
 	newCheckbox.background = newCheckbox:CreateTexture(nil, 'BACKGROUND')
 	newCheckbox.background:SetWidth(24)
 	newCheckbox.background:SetHeight(24)
-	newCheckbox.background:SetTexture(bgPath)
+	if bgPath ~= nil then
+		newCheckbox.background:SetTexture(bgPath)
+	end
 	newCheckbox.background:SetPoint('CENTER',newCheckbox)
 
 	return newCheckbox
 end
 
+local function createPersonalFavoriteIcon(name, parent)
+	personalFavoriteIcon = parent:CreateTexture(addonName..name, 'HIGH')
+	personalFavoriteIcon:SetAtlas('PetJournal-FavoritesIcon', true)
+	personalFavoriteIcon:SetPoint('RIGHT', parent, 'RIGHT', -2, 0)
+	personalFavoriteIcon:SetDesaturated(true)
+	personalFavoriteIcon:SetVertexColor(0.250, 0.780, 0.921)
+
+	return personalFavoriteIcon
+end
+
 -------------------------
 --   ADDON FUNCTIONS   --
 -------------------------
+-- updates the list to star icons in the scroll frame on personal favorites
+local function updateList()
+	if PetJournal:IsVisible() then
+		
+		if personalFavoriteIcons == nil or getLength(personalFavoriteIcons) ~= #PetJournal.listScroll.buttons then
+			personalFavoriteIcons = {}
+			for i=1,#PetJournal.listScroll.buttons do
+				personalFavoriteIcons[i] = createPersonalFavoriteIcon('PetJournalListScrollFrameButton'..i..'.personalFavoriteIcon', _G["PetJournalListScrollFrameButton"..i])
+				personalFavoriteIcons[i]:Hide()
+			end
+		end
+		
+		local offset = PetJournal.listScroll.offset
+		for i=1,#PetJournal.listScroll.buttons do
+			local petID = C_PetJournal.GetPetInfoByIndex(i + offset)
+			if personalPetDB[petID] ~= nil then
+				personalFavoriteIcons[i]:Show()
+			else
+				personalFavoriteIcons[i]:Hide()
+			end
+		end
+	end
+end
+
 local function summonRandom()
 	-- if addon not initialized
 	if personalPetCount == nil or personalPetDB == nil then
@@ -84,7 +142,7 @@ local function summonRandom()
 		return
 	end
 
-	-- cannot cummon pets in combat
+	-- cannot summon pets in combat
 	if UnitAffectingCombat('player') then
 		addonPrint('Cannot summon a pet in combat.')
 		return
@@ -117,7 +175,12 @@ local function updateDB(petID, addMount)
 end
 
 local function initAddon()
+	
 	--- SETUP VARIABLES ---
+	
+	if personalAutoSummonToggle == nil then
+		personalAutoSummonToggle = false
+	end
 	
 	if personalPetDB == nil then
 		personalPetDB = {}
@@ -132,15 +195,23 @@ local function initAddon()
 	end
 
 	--- CREATE AND ATTACH FRAMES ---
-	local petInset = createInset('petInset', PetJournal, 150, 20, 'BOTTOMRIGHT', -270, 4, 'Personal favorites: ', personalPetCount)
+	local petInset = createInset('PersonalFavoritesPetInset', PetJournal, 150, 20, 'BOTTOMRIGHT', -270, 4, 'Personal favorites: ', personalPetCount)
 	
-	local checkBoxPet = createCheckbox('CrazyForPetsCheckBox', PetJournalPetCard, 'TOPRIGHT', PetJournalPetCard, 'BOTTOMRIGHT', -175, 54, 'Add this pet to your personal favorites', 'Interface\\Addons\\CrazyForCats\\Icons\\paw')
+	local checkBoxPet = createCheckbox('PersonalFavoriteCheckBox', PetJournalPetCard, 'TOPRIGHT', PetJournalPetCard, 'BOTTOMRIGHT', -175, 54, 'Add this pet to your personal favorites', 'Interface\\Addons\\CrazyForCats\\Icons\\paw', 38, 38)
 	checkBoxPet:SetScript('OnClick', function(self)
 		local checked = self:GetChecked()
 		PlaySound(checked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
 		local petID = PetJournalPetCard.petID
 		updateDB(petID, checked)
+		updateList()
 		petInset.content:SetText(personalPetCount)
+	end)
+	-- local function createCheckbox(name, parent, anchor, relativeFrame, relativePoint, ofsX, ofsY, tooltip, bgPath, height, width)
+	local checkBoxAutoSummon = createCheckbox('AutoSummonCheckBox', PetJournal, 'LEFT', petInset, 'RIGHT', 5, 0, 'Toggle the automatic summoning of pets', nil, 26, 26, 'Auto summon')
+	checkBoxAutoSummon:SetScript('OnClick', function(self)
+		local checked = self:GetChecked()
+		PlaySound(checked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
+		personalAutoSummonToggle = checked
 	end)
 	
 	hooksecurefunc('PetJournal_UpdatePetCard', function()
@@ -153,11 +224,14 @@ local function initAddon()
 		end
 	end)
 	
+	hooksecurefunc('PetJournal_UpdatePetList', updateList)
+	PetJournalListScrollFrameScrollBar:HookScript('OnValueChanged', updateList)
+	
 	personalPetCount = getLength(personalPetDB)
 end
 
 -- checks if both the addon itself and the Blizzard Collections addon are loaded
-local function checkInit(self, event, addon)
+local function checkInit(self, addon)
 	if addon == addonName then
 		if IsAddOnLoaded('Blizzard_Collections') then
 			initAddon()
@@ -169,6 +243,46 @@ local function checkInit(self, event, addon)
 	end
 end
 
+local function checkAutoSummon(self)
+	-- auto summoning is not initialized
+	if personalAutoSummonToggle == nil then
+		personalAutoSummonToggle = false
+		return
+	-- the addon is disabled
+	elseif not personalAutoSummonToggle then
+		return
+	-- don't overwrite the already summoned pet
+	elseif C_PetJournal.GetSummonedPetGUID() ~= nil then
+		return
+	-- cannot summon a pet in combat
+	elseif UnitAffectingCombat('player') then
+		return
+	-- don't interfere with grouped content
+	elseif IsInInstance() then
+		return
+	-- don't waste global cooldown so emergency actions (flight form, glider, ...) are possible
+	elseif IsFalling() then
+		return
+	-- summoning a pet removes stealth
+	elseif IsStealthed() then
+		return
+	-- don't possibly dismount the player in the air
+	elseif IsFlying() then
+		return
+	-- cannot summon a pet in pet battle
+	elseif C_PetBattles.IsInBattle() then
+		return
+	-- cannot summon a pet on gryphon service
+	elseif UnitOnTaxi('player') then
+		return
+	-- cannot summon a pet in vehicles
+	elseif UnitInVehicle('player') then
+		return
+	else
+		summonRandom()
+	end
+end
+
 -------------------------
 --    SLASH COMMANDS   --
 -------------------------
@@ -177,7 +291,19 @@ SLASH_CFC1 = '/crazyforcats'
 SLASH_CFC2 = '/cfc'
 
 SlashCmdList['CFC'] = function(msg)
-	summonRandom()
+	if msg:lower() == 'toggle' then
+		personalAutoSummonToggle = not personalAutoSummonToggle
+		addonPrint('Automatic summoning of pets is now '..(personalAutoSummonToggle and 'active' or 'inactive')..'.')
+	else
+		summonRandom()
+	end
 end
 
-phisFrame:SetScript('OnEvent', checkInit)
+-- phisFrame:SetScript('OnEvent', checkInit)
+phisFrame:SetScript('OnEvent', function(self, event)
+	if event == 'ADDON_LOADED' then
+		checkInit(self, addonName)
+	else
+		checkAutoSummon(self)
+	end
+end)
