@@ -21,5 +21,5 @@ Select pets via checkbox in the pet journal from which one will randomly be chos
 - [ ] Filtering/searching of personal favorites
 - [x] Mark selected pets in the scroll list
 - [ ] *(Maybe)* **Rematch** integration
-- [ ] *(Maybe)* Automatic summoning of pets when non is summoned
+- [x] *(Maybe)* Automatic summoning of pets when non is summoned
 - [ ] ~~Don't use a table of tables, use the "inner" tables directly instead~~
