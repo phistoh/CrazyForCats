@@ -154,7 +154,7 @@ local function summonRandom()
 		for k in pairs(personalPetDB) do
 			table.insert(tmpIDs, k)
 		end
-		local petID = GetRandomArgument(unpack(tmpIDs))
+		local petID = tmpIDs[math.random(#tmpIDs)]
 		C_PetJournal.SummonPetByGUID(petID)
 	else
 		addonPrint('No personal pet favorites set.')
