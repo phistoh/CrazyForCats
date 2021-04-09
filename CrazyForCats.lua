@@ -300,9 +300,9 @@ SlashCmdList['CFC'] = function(msg)
 end
 
 -- phisFrame:SetScript('OnEvent', checkInit)
-phisFrame:SetScript('OnEvent', function(self, event)
+phisFrame:SetScript('OnEvent', function(self, event, addon)
 	if event == 'ADDON_LOADED' then
-		checkInit(self, addonName)
+		checkInit(self, addon)
 	else
 		checkAutoSummon(self)
 	end

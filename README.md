@@ -11,6 +11,7 @@ Select pets via checkbox in the pet journal from which one will randomly be chos
 - **paw.tga** is used as background for the checkbox
 
 ## Changes
+- **2.1.2**: Fixed a bug where the addon name was not passed while handling the 'ADDON_LOADED' event
 - **2.1.1**: Update for Shadowlands (9.0.5) (new interface number)
 - **2.1**: Pet in pet journal scroll list now show icons if they're marked as personal favorites; also implements an option to automatically summon personal favorites
 - **2.0b**: Table of pets is now generated ingame (checkboxes in the pet journal) and saved per character (using WoW's saved variables)
