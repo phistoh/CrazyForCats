@@ -63,7 +63,7 @@ local function createInset(name, parent, w, h, anchor, ofsX, ofsY, label, conten
 	return newInset
 end
 
-local function createCheckbox(name, parent, anchor, relativeFrame, relativePoint, ofsX, ofsY, tooltip, bgPath, height, width, label)
+local function createCheckbox(name, parent, anchor, relativeFrame, relativePoint, ofsX, ofsY, tooltip, bgPath, height, width, label, default)
 	local newCheckbox = CreateFrame('CheckButton', addonName..name, parent, 'InterfaceOptionsCheckButtonTemplate')
 	newCheckbox:SetPoint(anchor, relativeFrame, relativePoint, ofsX, ofsY)
 	
@@ -94,6 +94,8 @@ local function createCheckbox(name, parent, anchor, relativeFrame, relativePoint
 		newCheckbox.background:SetTexture(bgPath)
 	end
 	newCheckbox.background:SetPoint('CENTER',newCheckbox)
+	
+	newCheckbox:SetChecked(default)
 
 	return newCheckbox
 end
@@ -207,7 +209,7 @@ local function initAddon()
 		petInset.content:SetText(personalPetCount)
 	end)
 	-- local function createCheckbox(name, parent, anchor, relativeFrame, relativePoint, ofsX, ofsY, tooltip, bgPath, height, width)
-	local checkBoxAutoSummon = createCheckbox('AutoSummonCheckBox', PetJournal, 'LEFT', petInset, 'RIGHT', 5, 0, 'Toggle the automatic summoning of pets', nil, 26, 26, 'Auto summon')
+	local checkBoxAutoSummon = createCheckbox('AutoSummonCheckBox', PetJournal, 'LEFT', petInset, 'RIGHT', 5, 0, 'Toggle the automatic summoning of pets', nil, 26, 26, 'Auto summon', personalAutoSummonToggle)
 	checkBoxAutoSummon:SetScript('OnClick', function(self)
 		local checked = self:GetChecked()
 		PlaySound(checked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
