@@ -11,6 +11,7 @@ Select pets via checkbox in the pet journal from which one will randomly be chos
 - **paw.tga** is used as background for the checkbox
 
 ## Changes
+- **2.1.4**: Update for Chains of Domination (9.1.0) (new interface number)
 - **2.1.3**: Fixed a bug with the 'auto summon' checkbox not being checked on opening the journal
 - **2.1.2**: Fixed a bug where the addon name was not passed while handling the 'ADDON_LOADED' event
 - **2.1.1**: Update for Shadowlands (9.0.5) (new interface number)
