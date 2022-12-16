@@ -19,18 +19,13 @@ jobs:
       GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
  
     steps:
-      # get the changes between the last two versions from the manual changelog
-      - name: Generate changelog
-        run: |
-          touch .changes
-          sed -n '/^##/{p; :loop n; /^##/q; p; b loop}' ./CHANGELOG.md >> .changes
-
       # we first have to clone the AddOn project, this is a required step
       - name: Clone project
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
- 
+       
+      # get the changes between the last two versions from the manual changelog
       - name: Generate changelog
         run: |
           touch .changes
