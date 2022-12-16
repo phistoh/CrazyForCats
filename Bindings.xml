@@ -1,5 +1,5 @@
 <Bindings>
-	<Binding name="CRAZYFORCATS_SUMMON_RANDOM" category="BINDING_HEADER_CRAZYFORCATS">
+	<Binding name="CRAZYFORCATS_SUMMON_RANDOM" category="ADDONS">
 		CrazyForCatsGlobals.summonRandom();
 	</Binding>
 </Bindings>
