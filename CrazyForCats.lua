@@ -16,7 +16,7 @@ phisFrame:RegisterEvent('PLAYER_ALIVE')
 phisFrame:RegisterEvent('PLAYER_UNGHOST')
 
 -- controls the icons to indicate personal favorites
-local personalFavoriteIcons = nil
+local personalFavoriteIcons = {}
 
 
 -- globals for keybindings
@@ -101,7 +101,7 @@ local function createCheckbox(name, parent, anchor, relativeFrame, relativePoint
 end
 
 local function createPersonalFavoriteIcon(name, parent)
-	personalFavoriteIcon = parent:CreateTexture(addonName..name, 'HIGH')
+	local personalFavoriteIcon = parent:CreateTexture(addonName..name, 'OVERLAY', nil, 0)
 	personalFavoriteIcon:SetAtlas('PetJournal-FavoritesIcon', true)
 	personalFavoriteIcon:SetPoint('RIGHT', parent, 'RIGHT', -2, 0)
 	personalFavoriteIcon:SetDesaturated(true)
@@ -113,25 +113,29 @@ end
 -------------------------
 --   ADDON FUNCTIONS   --
 -------------------------
--- updates the list to star icons in the scroll frame on personal favorites
+-- updates the list to show star icons in the scroll frame on personal favorites
 local function updateList()
+	
+	-- since frames get reused, hide all favorite icons before opening the journal to make sure that a frame which now shows a non favorite pet does not keep its icon
+	for _, v in pairs(personalFavoriteIcons) do
+		v:Hide()
+	end
+	
 	if PetJournal:IsVisible() then
+		local currentView = PetJournal.ScrollBox:GetView()
+		local visiblePetCards = currentView:GetFrames()
 		
-		if personalFavoriteIcons == nil or getLength(personalFavoriteIcons) ~= #PetJournal.listScroll.buttons then
-			personalFavoriteIcons = {}
-			for i=1,#PetJournal.listScroll.buttons do
-				personalFavoriteIcons[i] = createPersonalFavoriteIcon('PetJournalListScrollFrameButton'..i..'.personalFavoriteIcon', _G["PetJournalListScrollFrameButton"..i])
-				personalFavoriteIcons[i]:Hide()
+		for k, v in pairs(visiblePetCards) do
+			local petID = v.petID
+			
+			if personalFavoriteIcons[v] == nil then
+				personalFavoriteIcons[v] = createPersonalFavoriteIcon('.visiblePetCards.personalFavoriteIcon', v)
 			end
-		end
-		
-		local offset = PetJournal.listScroll.offset
-		for i=1,#PetJournal.listScroll.buttons do
-			local petID = C_PetJournal.GetPetInfoByIndex(i + offset)
-			if personalPetDB[petID] ~= nil then
-				personalFavoriteIcons[i]:Show()
-			else
-				personalFavoriteIcons[i]:Hide()
+			personalFavoriteIcons[v]:Hide()
+			
+			-- only show the icon again if the frame contains a pet whose petID is in the set of personal favorites
+			if personalPetDB[petID] then
+				personalFavoriteIcons[v]:Show()
 			end
 		end
 	end
@@ -165,12 +169,12 @@ end
 -- add to globals for keybindings
 CrazyForCatsGlobals.summonRandom = summonRandom
 
--- mountIDs are used as keys for more efficient lookup
-local function updateDB(petID, addMount)
-	if addMount and personalPetDB[petID] == nil then
+-- petIDs are used as keys for more efficient lookup
+local function updateDB(petID, addPet)
+	if addPet and personalPetDB[petID] == nil then
 		personalPetDB[petID] = true
 		personalPetCount = personalPetCount + 1
-	elseif not addMount and personalPetDB[petID] ~= nil then
+	elseif not addPet and personalPetDB[petID] ~= nil then
 		personalPetDB[petID] = nil
 		personalPetCount = math.max(personalPetCount - 1, 0)
 	end
@@ -227,7 +231,8 @@ local function initAddon()
 	end)
 	
 	hooksecurefunc('PetJournal_UpdatePetList', updateList)
-	PetJournalListScrollFrameScrollBar:HookScript('OnValueChanged', updateList)
+	PetJournal.ScrollBox:HookScript('OnMouseWheel', updateList)
+	
 	
 	personalPetCount = getLength(personalPetDB)
 end
