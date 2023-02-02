@@ -1,3 +1,6 @@
+## v2.1.7
+Update for Dragonflight (10.0.5) (new interface number)
+
 ## v2.1.6
 - Fixed interface taint (changed bindings `category` to `ADDON`)
 
