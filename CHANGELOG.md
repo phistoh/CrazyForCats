@@ -1,3 +1,6 @@
+## v2.1.9
+- Update for Plunderstorm (10.2.6) (new interface number)
+
 ## v2.1.8
 - Update for Dragonflight (10.2.0) (new interface number)
 - Icon in `toc` file
