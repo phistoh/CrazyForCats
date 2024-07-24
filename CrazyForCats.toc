@@ -1,6 +1,6 @@
-## Interface: 100207
+## Interface: 110000
 ## Title: CrazyForCats
-## Version: 2.1.10
+## Version: 2.1.11
 ## Author: phistoh
 ## Notes: Provides a command to summon a random pet from a predefined table.
 ## IconTexture: 656579
