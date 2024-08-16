@@ -1,3 +1,7 @@
+## v2.1.12
+- Update for The War Within (11.0.0) (new interface number)
+- Changed deprecated function `IsAddOnLoaded` to `C_AddOns.IsAddOnLoaded`
+
 ## v2.1.11
 - Update for The War Within (11.0.0) (new interface number)
 
