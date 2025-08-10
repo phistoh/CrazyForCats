@@ -1,5 +1,8 @@
+## v2.1.13
+- Update for Ghosts of K'aresh (11.2) (new interface number)
+
 ## v2.1.12
-- Update for The War Within (11.0.0) (new interface number)
+- Update for The War Within (11.0.2) (new interface number)
 - Changed deprecated function `IsAddOnLoaded` to `C_AddOns.IsAddOnLoaded`
 
 ## v2.1.11
