@@ -265,9 +265,17 @@ local function checkAutoSummon(self)
 	-- cannot summon a pet in combat
 	elseif UnitAffectingCombat('player') then
 		return
-	-- don't interfere with grouped content
+	-- don't interfere with grouped content (except neighborhoods)
 	elseif IsInInstance() then
-		return
+		housingIds = {
+			[2783] = true, -- Home Interior
+			[2735] = true, -- Founder's Point
+			[2736] = true, -- Razorwind Shores
+		}
+		_, _, _, _, _, _, _, instanceID = GetInstanceInfo()
+		if not housingIds[instanceID] then
+			return
+		end
 	-- don't waste global cooldown so emergency actions (flight form, glider, ...) are possible
 	elseif IsFalling() then
 		return
@@ -286,9 +294,8 @@ local function checkAutoSummon(self)
 	-- cannot summon a pet in vehicles
 	elseif UnitInVehicle('player') then
 		return
-	else
-		summonRandom()
 	end
+	summonRandom()
 end
 
 -------------------------

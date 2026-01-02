@@ -1,3 +1,7 @@
+## v2.1.14
+- Update for The Warninr (11.2.7) (new interface number)
+- Pet auto summoning also works in housing areas (home interior, Founder's Point, Razorwind Shores)
+
 ## v2.1.13
 - Update for Ghosts of K'aresh (11.2) (new interface number)
 
