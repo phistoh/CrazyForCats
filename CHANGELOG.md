@@ -1,5 +1,8 @@
+## v2.1.15
+- Update for Midnight (12.0.1) (new interface number)
+
 ## v2.1.14
-- Update for The Warninr (11.2.7) (new interface number)
+- Update for The Warning (11.2.7) (new interface number)
 - Pet auto summoning also works in housing areas (home interior, Founder's Point, Razorwind Shores)
 
 ## v2.1.13
